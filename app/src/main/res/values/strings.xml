@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">SimpleBLEV2</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="manage_device">Select Device</string>
+    <string name="esp32_control">Control ESP32</string>
+    <string name="bonded_devices">gekoppelte Geräte</string>
+    <string name="start_search_devices">start suche Geräte</string>
+    <string name="stop_search_devices">stop suche Geräte</string>
+
+    <string name="bt_not_available">Bluetooth nicht verfügbar</string>
+    <string name="ble_not_supported">BLE wird nicht unterstützt</string>
+    <string name="bt_no_paired_devices">keine gekoppelten Geräte</string>
+
+
+    <string name="ledSwitch">LED</string>
+    <string name="blinkSwitch">Blinken</string>
+    <string name="datenSwitch">Empfange Daten</string>
+
+    <string name="no_selected_device">Wähle Device</string>
+    <string name="selected_device">Device: %s</string>
+
+    <string name="not_connected">keine Verbindung</string>
+    <string name="connecting">verbinde ...</string>
+    <string name="connected">verbunden</string>
+    <string name="connect">verbinde</string>
+    <string name="disconnect">trenne</string>
+
+</resources>
