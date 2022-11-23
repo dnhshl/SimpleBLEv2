@@ -44,6 +44,8 @@ class ESP32ControlFragment : Fragment() {
             }
         }
 
+        binding.tvSelectedDevice.text = viewModel.getDeviceSelected()
+
         binding.btnSelectDevice.setOnClickListener {
             findNavController().navigate(R.id.action_ESP32ControlFragment_to_manageDeviceFragment)
         }
