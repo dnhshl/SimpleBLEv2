@@ -8,17 +8,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 const val CUSTOM_SERVICE_UUID = "0000FFE0-0000-1000-8000-00805F9B34FB"
+const val CUSTOM_CHARACTERISTIC_UUID = "0000FFE1-0000-1000-8000-00805F9B34FB"
 
 private val CustomConfigCharacteristic = characteristicOf(
     service = CUSTOM_SERVICE_UUID,
-    characteristic = "0000FFE1-0000-1000-8000-00805F9B34FB",
+    characteristic = CUSTOM_CHARACTERISTIC_UUID
 )
 
-private val CustomConfigDescriptor = descriptorOf(
-    service = CUSTOM_SERVICE_UUID,
-    characteristic = "0000FFE1-0000-1000-8000-00805F9B34FB",
-    descriptor = "00002902-0000-1000-8000-00805F9B34FB"
-)
 
 sealed class ScanState {
     object Stopped : ScanState()

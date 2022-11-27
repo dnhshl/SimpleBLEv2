@@ -19,16 +19,9 @@ import java.util.concurrent.TimeUnit
 
 
 
-private val SCAN_DURATION_MILLIS = TimeUnit.SECONDS.toMillis(10)
 
 
 
-data class Device(
-    val name: String,
-    val address: String
-) {
-    override fun toString(): String = name + ": " + address
-}
 
 
 
@@ -39,6 +32,7 @@ class MainViewModel : ViewModel() {
     private lateinit var peripheral: Peripheral
     private lateinit var esp32: Esp32Ble
     private lateinit var dataLoadJob: Job
+    private lateinit var scanJob: Job
 
     private val _deviceList = MutableLiveData<MutableList<Device>>()
     val deviceList: LiveData<MutableList<Device>>
@@ -79,13 +73,6 @@ class MainViewModel : ViewModel() {
     }
 
 
-    var ledData = LedData()
-
-    private var _esp32Data = MutableLiveData<Esp32Data>(Esp32Data())
-    val esp32Data: LiveData<Esp32Data>
-        get() = _esp32Data
-
-
     // Scanning
     // ------------------------------------------------------------------------------
 
@@ -94,14 +81,15 @@ class MainViewModel : ViewModel() {
             Filter.Service(uuidFrom(CUSTOM_SERVICE_UUID))
         )
     }
-    private val scanScope = viewModelScope.childScope()
+
     private val scanState = MutableStateFlow<ScanState>(ScanState.Stopped)
 
     fun startScan() {
         if (scanState.value == ScanState.Scanning) return // Scan already in progress.
         scanState.value = ScanState.Scanning
 
-        scanScope.launch {
+        val SCAN_DURATION_MILLIS = TimeUnit.SECONDS.toMillis(10)
+        scanJob = viewModelScope.launch {
             withTimeoutOrNull(SCAN_DURATION_MILLIS) {
                 scanner
                     .advertisements
@@ -123,7 +111,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun stopScan() {
-        scanScope.cancelChildren()
+        scanJob.cancel()
     }
 
     // Connecting
@@ -160,6 +148,13 @@ class MainViewModel : ViewModel() {
 
     // Communication
     // ____________________________________________________________________
+
+
+    var ledData = LedData()
+
+    private var _esp32Data = MutableLiveData<Esp32Data>(Esp32Data())
+    val esp32Data: LiveData<Esp32Data>
+        get() = _esp32Data
 
     fun startDataLoadJob() {
         dataLoadJob = viewModelScope.launch {

@@ -13,9 +13,7 @@ import com.example.simpleblev2.model.MainViewModel
 import com.juul.kable.State
 
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
+
 class ESP32ControlFragment : Fragment() {
 
     private var _binding: FragmentEsp32controlBinding? = null
@@ -52,8 +50,10 @@ class ESP32ControlFragment : Fragment() {
             }
         }
 
+        // Observer auf neue Daten vom ESP32
         viewModel.esp32Data.observe(viewLifecycleOwner) { data ->
             binding.tvData.text = "${data.ledstatus}\n${data.potiArray}"
+            // process data ....
         }
 
         binding.btnSelectDevice.setOnClickListener {
