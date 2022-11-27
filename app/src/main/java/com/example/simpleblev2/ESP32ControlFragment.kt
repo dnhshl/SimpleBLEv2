@@ -63,6 +63,13 @@ class ESP32ControlFragment : Fragment() {
         binding.btnDisconnect.setOnClickListener {
             viewModel.disconnect()
         }
+
+        binding.switchLed.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) viewModel.ledData.led = "H"
+            else viewModel.ledData.led = "L"
+            viewModel.sendLedData()
+        }
+
     }
 
     override fun onDestroyView() {

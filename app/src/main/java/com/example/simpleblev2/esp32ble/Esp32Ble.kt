@@ -1,10 +1,7 @@
 package com.example.simpleblev2.esp32ble
 
 import android.util.Log
-import com.juul.kable.ConnectionLostException
-import com.juul.kable.Peripheral
-import com.juul.kable.WriteType
-import com.juul.kable.characteristicOf
+import com.juul.kable.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,17 +14,16 @@ private val CustomConfigCharacteristic = characteristicOf(
     characteristic = "0000FFE1-0000-1000-8000-00805F9B34FB",
 )
 
+private val CustomConfigDescriptor = descriptorOf(
+    service = CUSTOM_SERVICE_UUID,
+    characteristic = "0000FFE1-0000-1000-8000-00805F9B34FB",
+    descriptor = "00002902-0000-1000-8000-00805F9B34FB"
+)
+
 sealed class ScanState {
     object Stopped : ScanState()
     object Scanning : ScanState()
     data class Failed(val message: CharSequence) : ScanState()
-}
-
-sealed class ConnectState {
-    object Connecting : ConnectState()
-    object Connected: ConnectState()
-    object Disconnecting : ConnectState()
-    object Disconnected : ConnectState()
 }
 
 
@@ -40,11 +36,9 @@ class Esp32Ble(
             data.toString()
         }
 
-    suspend fun writeLedData(jsonstring: String) {
-        val data = byteArrayOf(jsonstring.toByte())
-
-        peripheral.write(CustomConfigCharacteristic, data, WriteType.WithoutResponse)
-        Log.i(">>>>", "write LED Data")
+    suspend fun sendMessage(msg: String) {
+        peripheral.write(CustomConfigCharacteristic, msg.toByteArray(), WriteType.WithResponse)
+        Log.i(">>>> sending", msg)
     }
 
 }
