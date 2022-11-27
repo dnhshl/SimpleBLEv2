@@ -43,7 +43,7 @@ class ESP32ControlFragment : Fragment() {
         binding.tvSelectedDevice.text = viewModel.getDeviceSelected()
 
         // Mittels Observer den Adapter über Änderungen in der Liste informieren
-        viewModel.state.observe(viewLifecycleOwner) { state ->
+        viewModel.connectState.observe(viewLifecycleOwner) { state ->
             Log.i(">>>> state", state)
             when (state) {
                 "Connected" -> {binding.tvIsConnected.text = getString(R.string.connected)}
@@ -57,11 +57,11 @@ class ESP32ControlFragment : Fragment() {
         }
 
         binding.btnConnect.setOnClickListener {
-            viewModel.connectDevice()
+            viewModel.connect()
         }
 
         binding.btnDisconnect.setOnClickListener {
-            viewModel.disconnectDevice()
+            viewModel.disconnect()
         }
     }
 
