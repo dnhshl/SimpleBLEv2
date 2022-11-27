@@ -7,11 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.benasher44.uuid.uuidFrom
-import com.example.simpleblev2.esp32ble.CUSTOM_SERVICE_UUID
-import com.example.simpleblev2.esp32ble.Esp32Ble
-import com.example.simpleblev2.esp32ble.LedData
-import com.example.simpleblev2.esp32ble.ScanState
+import com.example.simpleblev2.esp32ble.*
 import com.juul.kable.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -40,6 +38,7 @@ class MainViewModel : ViewModel() {
 
     private lateinit var peripheral: Peripheral
     private lateinit var esp32: Esp32Ble
+    private lateinit var dataLoadJob: Job
 
     private val _deviceList = MutableLiveData<MutableList<Device>>()
     val deviceList: LiveData<MutableList<Device>>
@@ -81,6 +80,11 @@ class MainViewModel : ViewModel() {
 
 
     var ledData = LedData()
+
+    private var _esp32Data = MutableLiveData<Esp32Data>(Esp32Data())
+    val esp32Data: LiveData<Esp32Data>
+        get() = _esp32Data
+
 
     // Scanning
     // ------------------------------------------------------------------------------
@@ -133,13 +137,6 @@ class MainViewModel : ViewModel() {
     fun connect() {
         viewModelScope.launch {
             esp32.connect()
-            Log.i(">>>> services discovered", esp32.services.toString())
-
-            for (service in esp32.services!!) {
-                Log.i(">>>> service", service.toString())
-
-            }
-
         }
     }
 
@@ -164,6 +161,20 @@ class MainViewModel : ViewModel() {
     // Communication
     // ____________________________________________________________________
 
+    fun startDataLoadJob() {
+        dataLoadJob = viewModelScope.launch {
+            esp32.incommingMessages.collect { msg ->
+                val jsonstring = String(msg)
+                Log.i(">>>> msg in", jsonstring)
+                _esp32Data.value = jsonParseEsp32Data(jsonstring)
+            }
+        }
+    }
+
+    fun cancelDataLoadJob() {
+        dataLoadJob.cancel()
+    }
+
     fun sendLedData() {
         viewModelScope.launch {
             try {
@@ -179,6 +190,19 @@ class MainViewModel : ViewModel() {
         obj.put("LED", ledData.led)
         obj.put("LEDBlinken", ledData.ledBlinken)
         return obj.toString()
+    }
+
+    fun jsonParseEsp32Data(jsonString: String): Esp32Data {
+        try {
+            val obj = JSONObject(jsonString)
+            return Esp32Data(
+                ledstatus = obj.getString("ledstatus"),
+                potiArray = obj.getJSONArray("potiArray")
+            )
+        } catch (e: Exception) {
+            Log.i(">>>>", "Error decoding JSON ${e.message}")
+            return Esp32Data()
+        }
     }
 
 }

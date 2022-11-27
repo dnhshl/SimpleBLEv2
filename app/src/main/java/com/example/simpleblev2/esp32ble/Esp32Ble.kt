@@ -31,10 +31,7 @@ class Esp32Ble(
     private val peripheral: Peripheral
 ) : Peripheral by peripheral {
 
-    val data: Flow<String> = peripheral.observe(CustomConfigCharacteristic)
-        .map { data ->
-            data.toString()
-        }
+    val incommingMessages = peripheral.observe(CustomConfigCharacteristic)
 
     suspend fun sendMessage(msg: String) {
         peripheral.write(CustomConfigCharacteristic, msg.toByteArray(), WriteType.WithResponse)

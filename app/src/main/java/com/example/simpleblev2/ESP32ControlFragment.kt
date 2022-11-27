@@ -52,6 +52,10 @@ class ESP32ControlFragment : Fragment() {
             }
         }
 
+        viewModel.esp32Data.observe(viewLifecycleOwner) { data ->
+            binding.tvData.text = "${data.ledstatus}\n${data.potiArray}"
+        }
+
         binding.btnSelectDevice.setOnClickListener {
             findNavController().navigate(R.id.action_ESP32ControlFragment_to_manageDeviceFragment)
         }
@@ -68,6 +72,22 @@ class ESP32ControlFragment : Fragment() {
             if (isChecked) viewModel.ledData.led = "H"
             else viewModel.ledData.led = "L"
             viewModel.sendLedData()
+        }
+
+        binding.switchBlinken.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) viewModel.ledData.ledBlinken = true
+            else viewModel.ledData.ledBlinken = false
+            viewModel.sendLedData()
+        }
+
+        binding.switchDaten.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                viewModel.startDataLoadJob()
+                binding.tvData.visibility = View.VISIBLE
+            } else {
+                viewModel.cancelDataLoadJob()
+                binding.tvData.visibility = View.INVISIBLE
+            }
         }
 
     }
