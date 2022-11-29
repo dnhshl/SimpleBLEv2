@@ -18,15 +18,12 @@ private val CustomConfigCharacteristic = characteristicOf(
 
 
 
-class Esp32Ble(
-    private val peripheral: Peripheral
-) : Peripheral by peripheral {
+class Esp32Ble(private val peripheral: Peripheral): Peripheral by peripheral {
 
-    val incommingMessages = peripheral.observe(CustomConfigCharacteristic)
+    val incomingMessages = peripheral.observe(CustomConfigCharacteristic)
 
     suspend fun sendMessage(msg: String) {
         peripheral.write(CustomConfigCharacteristic, msg.toByteArray(), WriteType.WithResponse)
         Log.i(">>>> sending", msg)
     }
-
 }

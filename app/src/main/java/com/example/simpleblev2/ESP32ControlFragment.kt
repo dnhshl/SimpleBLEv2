@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.simpleblev2.databinding.FragmentEsp32controlBinding
+import com.example.simpleblev2.model.ConnectState
 import com.example.simpleblev2.model.MainViewModel
 import com.juul.kable.State
-
 
 
 class ESP32ControlFragment : Fragment() {
@@ -40,13 +40,29 @@ class ESP32ControlFragment : Fragment() {
 
         binding.tvSelectedDevice.text = viewModel.getDeviceSelected()
 
-        // Mittels Observer den Adapter über Änderungen in der Liste informieren
+        // Mittels Observer über Änderungen des connect status informieren
         viewModel.connectState.observe(viewLifecycleOwner) { state ->
-            Log.i(">>>> state", state)
             when (state) {
-                "Connected" -> {binding.tvIsConnected.text = getString(R.string.connected)}
-                "Disconnected(null)" -> {binding.tvIsConnected.text = getString(R.string.not_connected)}
-                else -> {binding.tvIsConnected.text = getString(R.string.connecting)}
+                ConnectState.CONNECTED -> {
+                    binding.tvIsConnected.text = getString(R.string.connected)
+                    binding.btnConnect.isEnabled = false
+                    binding.btnDisconnect.isEnabled = true
+                }
+                ConnectState.NOT_CONNECTED -> {
+                    binding.tvIsConnected.text = getString(R.string.not_connected)
+                    binding.btnConnect.isEnabled = true
+                    binding.btnDisconnect.isEnabled = false
+                }
+                ConnectState.NO_DEVICE -> {
+                    binding.tvIsConnected.text = getString(R.string.no_selected_device)
+                    binding.btnConnect.isEnabled = false
+                    binding.btnDisconnect.isEnabled = false
+                }
+                ConnectState.DEVICE_SELECTED -> {
+                    binding.tvIsConnected.text = getString(R.string.connecting)
+                    binding.btnConnect.isEnabled = true
+                    binding.btnDisconnect.isEnabled = false
+                }
             }
         }
 

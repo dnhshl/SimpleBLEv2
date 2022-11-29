@@ -26,16 +26,19 @@ object ScanState {
     const val FAILED = 2
 }
 
+object ConnectState {
+    const val NO_DEVICE = 0
+    const val DEVICE_SELECTED = 1
+    const val CONNECTED = 2
+    const val NOT_CONNECTED = 3
+}
 
-
+data class Device(val name: String, val address: String) {
+    override fun toString(): String = name + ": " + address
+}
 
 class MainViewModel : ViewModel() {
 
-
-    private lateinit var peripheral: Peripheral
-    private lateinit var esp32: Esp32Ble
-    private lateinit var dataLoadJob: Job
-    private lateinit var scanJob: Job
 
     private val _deviceList = MutableLiveData<MutableList<Device>>()
     val deviceList: LiveData<MutableList<Device>>
@@ -43,7 +46,7 @@ class MainViewModel : ViewModel() {
 
     init {
         _deviceList.value = mutableListOf()
-    }
+     }
 
     fun getDeviceList(): List<Device>? {
         return _deviceList.value
@@ -58,28 +61,14 @@ class MainViewModel : ViewModel() {
 
     fun setDeviceSelected(devicestring: String) {
         deviceSelected = devicestring
-        val macAddress = devicestring.substring(devicestring.length -17);
-        peripheral = viewModelScope.peripheral(macAddress) {
-            onServicesDiscovered {
-                requestMtu(517)
-            }
-        }
-        esp32 = Esp32Ble(peripheral)
-        Log.i(">>>> services", peripheral.services.toString())
-
-        viewModelScope.launch {
-            peripheral.state.collect { state ->
-                Log.i(">>>> Connection State:", state.toString())
-                _connectState.value = state.toString()
-            }
-        }
+        _connectState.value = ConnectState.DEVICE_SELECTED
     }
 
 
     // Scanning
     // ------------------------------------------------------------------------------
 
-
+    private lateinit var scanJob: Job
 
     private val scanner = Scanner {
         filters = listOf(
@@ -123,12 +112,36 @@ class MainViewModel : ViewModel() {
     // Connecting
     // --------------------------------------------------------------------------
 
+    private lateinit var peripheral: Peripheral
+    private lateinit var esp32: Esp32Ble
 
-    private val _connectState = MutableLiveData<String>()
-    val connectState: LiveData<String>
+    private val _connectState = MutableLiveData<Int>(ConnectState.NO_DEVICE)
+    val connectState: LiveData<Int>
         get() = _connectState
 
     fun connect() {
+        if (deviceSelected.isEmpty()) return
+        val macAddress = deviceSelected.substring(deviceSelected.length -17);
+        peripheral = viewModelScope.peripheral(macAddress) {
+            onServicesDiscovered {
+                requestMtu(517)
+            }
+        }
+        esp32 = Esp32Ble(peripheral)
+
+
+        viewModelScope.launch {
+            peripheral.state.collect { state ->
+
+                Log.i(">>>> Connection State:", state.toString())
+                when (state.toString()) {
+                    "Connected" -> _connectState.value = ConnectState.CONNECTED
+                    "Disconnected(null)" -> _connectState.value = ConnectState.NOT_CONNECTED
+                    else -> _connectState.value = ConnectState.NOT_CONNECTED
+                }
+            }
+        }
+
         viewModelScope.launch {
             esp32.connect()
         }
@@ -158,13 +171,15 @@ class MainViewModel : ViewModel() {
 
     var ledData = LedData()
 
+    private lateinit var dataLoadJob: Job
+
     private var _esp32Data = MutableLiveData<Esp32Data>(Esp32Data())
     val esp32Data: LiveData<Esp32Data>
         get() = _esp32Data
 
     fun startDataLoadJob() {
         dataLoadJob = viewModelScope.launch {
-            esp32.incommingMessages.collect { msg ->
+            esp32.incomingMessages.collect { msg ->
                 val jsonstring = String(msg)
                 Log.i(">>>> msg in", jsonstring)
                 _esp32Data.value = jsonParseEsp32Data(jsonstring)
@@ -205,6 +220,5 @@ class MainViewModel : ViewModel() {
             return Esp32Data()
         }
     }
-
 }
 
