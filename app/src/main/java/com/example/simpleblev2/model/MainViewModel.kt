@@ -20,8 +20,11 @@ import java.util.concurrent.TimeUnit
 
 
 
-
-
+object ScanState {
+    const val NOT_SCANNING = 0
+    const val SCANNING = 1
+    const val FAILED = 2
+}
 
 
 
@@ -76,26 +79,28 @@ class MainViewModel : ViewModel() {
     // Scanning
     // ------------------------------------------------------------------------------
 
+
+
     private val scanner = Scanner {
         filters = listOf(
             Filter.Service(uuidFrom(CUSTOM_SERVICE_UUID))
         )
     }
 
-    private val scanState = MutableStateFlow<ScanState>(ScanState.Stopped)
+    private var scanState = ScanState.NOT_SCANNING
 
     fun startScan() {
-        if (scanState.value == ScanState.Scanning) return // Scan already in progress.
-        scanState.value = ScanState.Scanning
+        if (scanState == ScanState.SCANNING) return // Scan already in progress.
+        scanState = ScanState.SCANNING
 
         val SCAN_DURATION_MILLIS = TimeUnit.SECONDS.toMillis(10)
         scanJob = viewModelScope.launch {
             withTimeoutOrNull(SCAN_DURATION_MILLIS) {
                 scanner
                     .advertisements
-                    .catch { cause -> scanState.value = ScanState.Failed(cause.message ?: "Unknown error") }
-                    .onCompletion { cause -> if (cause == null || cause is CancellationException) scanState.value =
-                        ScanState.Stopped
+                    .catch { cause -> scanState = ScanState.FAILED }
+                    .onCompletion { cause -> if (cause == null || cause is CancellationException)
+                        scanState = ScanState.NOT_SCANNING
                     }
                     .collect { advertisement ->
                         val device = Device(name = advertisement.name.toString(),
@@ -111,6 +116,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun stopScan() {
+        scanState = ScanState.NOT_SCANNING
         scanJob.cancel()
     }
 

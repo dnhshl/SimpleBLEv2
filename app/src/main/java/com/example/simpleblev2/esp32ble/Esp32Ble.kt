@@ -16,11 +16,6 @@ private val CustomConfigCharacteristic = characteristicOf(
 )
 
 
-sealed class ScanState {
-    object Stopped : ScanState()
-    object Scanning : ScanState()
-    data class Failed(val message: CharSequence) : ScanState()
-}
 
 
 class Esp32Ble(
