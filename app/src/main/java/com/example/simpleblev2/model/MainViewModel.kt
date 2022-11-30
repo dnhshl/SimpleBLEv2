@@ -120,7 +120,7 @@ class MainViewModel : ViewModel() {
         get() = _connectState
 
     fun connect() {
-        if (deviceSelected.isEmpty()) return
+        if (_connectState.value == ConnectState.NO_DEVICE) return
         val macAddress = deviceSelected.substring(deviceSelected.length -17);
         peripheral = viewModelScope.peripheral(macAddress) {
             onServicesDiscovered {

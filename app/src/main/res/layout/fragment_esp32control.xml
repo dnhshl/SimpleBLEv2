@@ -98,7 +98,8 @@
             android:layout_weight="1"
             android:text="@string/connect" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            style="@style/MaterialButtonStyle"
             android:id="@+id/btn_disconnect"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
