@@ -59,7 +59,6 @@ class ManageDeviceFragment : Fragment() {
         }
 
         binding.btnSearchDevices.setOnClickListener {
-            checkBTPermission()
             viewModel.startScan()
         }
 
@@ -71,24 +70,5 @@ class ManageDeviceFragment : Fragment() {
         _binding = null
     }
 
-    private fun checkBTPermission() {
-        var permissionCheck = PermissionChecker.checkSelfPermission(
-            requireContext(),
-            "Manifest.permission.ACCESS_FINE_LOCATION"
-        )
-        permissionCheck += PermissionChecker.checkSelfPermission(
-            requireContext(),
-            "Manifest.permission.ACCESS_COARSE_LOCATION"
-        )
-        permissionCheck += PermissionChecker.checkSelfPermission(
-            requireContext(),
-            "Manifest.permission.BLUETOOTH_CONNECT"
-        )
-        if (permissionCheck != PermissionChecker.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.BLUETOOTH_CONNECT), 1001)
-        }
-    }
+
 }

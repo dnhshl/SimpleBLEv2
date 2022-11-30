@@ -79,6 +79,7 @@ class MainViewModel : ViewModel() {
     private var scanState = ScanState.NOT_SCANNING
 
     fun startScan() {
+        Log.i(">>>>", "Start Scanning ...")
         if (scanState == ScanState.SCANNING) return // Scan already in progress.
         scanState = ScanState.SCANNING
 
@@ -87,7 +88,10 @@ class MainViewModel : ViewModel() {
             withTimeoutOrNull(SCAN_DURATION_MILLIS) {
                 scanner
                     .advertisements
-                    .catch { cause -> scanState = ScanState.FAILED }
+                    .catch {
+                            cause -> scanState = ScanState.FAILED
+                            Log.i(">>>> Scanning Failed", cause.message.toString())
+                    }
                     .onCompletion { cause -> if (cause == null || cause is CancellationException)
                         scanState = ScanState.NOT_SCANNING
                     }

@@ -1,5 +1,6 @@
 package com.example.simpleblev2
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
@@ -14,6 +15,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.core.content.PermissionChecker
 import com.example.simpleblev2.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -23,6 +25,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        checkBTPermission()
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -65,5 +69,31 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    private fun checkBTPermission() {
+        var permissionCheck = PermissionChecker.checkSelfPermission(
+            this,
+            "Manifest.permission.ACCESS_FINE_LOCATION"
+        )
+        permissionCheck += PermissionChecker.checkSelfPermission(
+            this,
+            "Manifest.permission.ACCESS_COARSE_LOCATION"
+        )
+        permissionCheck += PermissionChecker.checkSelfPermission(
+            this,
+            "Manifest.permission.BLUETOOTH_CONNECT"
+        )
+        permissionCheck += PermissionChecker.checkSelfPermission(
+            this,
+            "Manifest.permission.BLUETOOTH_SCAN"
+        )
+        if (permissionCheck != PermissionChecker.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_SCAN), 1001)
+        }
     }
 }
