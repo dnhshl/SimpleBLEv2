@@ -18,8 +18,6 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 
 
-
-
 object ScanState {
     const val NOT_SCANNING = 0
     const val SCANNING = 1
