@@ -47,21 +47,33 @@ class ESP32ControlFragment : Fragment() {
                     binding.tvIsConnected.text = getString(R.string.connected)
                     binding.btnConnect.isEnabled = false
                     binding.btnDisconnect.isEnabled = true
+                    binding.switchDaten.isEnabled = true
+                    binding.switchLed.isEnabled = true
+                    binding.switchBlinken.isEnabled = true
                 }
                 ConnectState.NOT_CONNECTED -> {
                     binding.tvIsConnected.text = getString(R.string.not_connected)
                     binding.btnConnect.isEnabled = true
                     binding.btnDisconnect.isEnabled = false
+                    binding.switchDaten.isEnabled = false
+                    binding.switchLed.isEnabled = false
+                    binding.switchBlinken.isEnabled = false
                 }
                 ConnectState.NO_DEVICE -> {
                     binding.tvIsConnected.text = getString(R.string.no_selected_device)
                     binding.btnConnect.isEnabled = false
                     binding.btnDisconnect.isEnabled = false
+                    binding.switchDaten.isEnabled = false
+                    binding.switchLed.isEnabled = false
+                    binding.switchBlinken.isEnabled = false
                 }
                 ConnectState.DEVICE_SELECTED -> {
                     binding.tvIsConnected.text = getString(R.string.connecting)
                     binding.btnConnect.isEnabled = true
                     binding.btnDisconnect.isEnabled = false
+                    binding.switchDaten.isEnabled = false
+                    binding.switchLed.isEnabled = false
+                    binding.switchBlinken.isEnabled = false
                 }
             }
         }

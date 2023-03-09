@@ -86,12 +86,14 @@ class MainViewModel : ViewModel() {
             withTimeoutOrNull(SCAN_DURATION_MILLIS) {
                 scanner
                     .advertisements
-                    .catch {
-                            cause -> scanState = ScanState.FAILED
-                            Log.i(">>>> Scanning Failed", cause.message.toString())
+                    .catch {cause ->
+                        scanState = ScanState.FAILED
+                        Log.i(">>>> Scanning Failed", cause.message.toString())
                     }
-                    .onCompletion { cause -> if (cause == null || cause is CancellationException)
-                        scanState = ScanState.NOT_SCANNING
+                    .onCompletion { cause ->
+                        Log.i(">>>> Scanning Completed", cause?.message.toString())
+                        if (cause == null || cause is CancellationException)
+                            scanState = ScanState.NOT_SCANNING
                     }
                     .collect { advertisement ->
                         val device = Device(name = advertisement.name.toString(),
